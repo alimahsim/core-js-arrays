@@ -507,21 +507,27 @@ function findCommonElements(arr1, arr2) {
  *    findLongestIncreasingSubsequence([50, 3, 10, 7, 40, 80]) => longest is [7, 40, 80] => 3
  */
 function findLongestIncreasingSubsequence(nums) {
-  const subsequences = nums.map((_, i) => {
-    const subsequence = [nums[i]];
-    for (let j = i + 1; j < nums.length; j + 1) {
-      if (nums[j] > subsequence[subsequence.length - 1]) {
-        subsequence.push(nums[j]);
-      } else {
-        break;
-      }
+  function findIncreasingSequences(arr) {
+    if (arr.length === 0) {
+      return [];
     }
-    return subsequence;
-  });
-  return subsequences.reduce(
-    (maxLength, subsequence) => Math.max(maxLength, subsequence.length),
+    const current = arr[0];
+    const nextSequences = findIncreasingSequences(arr.slice(1));
+    if (nextSequences.length === 0) {
+      return [[current]];
+    }
+    const [firstSequence, ...restSequences] = nextSequences;
+    if (firstSequence[0] > current) {
+      return [[current, ...firstSequence], ...restSequences];
+    }
+    return [[current], ...nextSequences];
+  }
+  const sequences = findIncreasingSequences(nums);
+  const longestLength = sequences.reduce(
+    (max, sequence) => Math.max(max, sequence.length),
     0
   );
+  return longestLength;
 }
 
 /**
@@ -557,8 +563,8 @@ function propagateItemsByPositionIndex(arr) {
  */
 function shiftArray(arr, n) {
   const len = arr.length;
-  n = ((n % len) + len) % len;
-  return arr.slice(n).concat(arr.slice(0, n));
+  const shiftAmount = ((n % len) + len) % len;
+  return arr.slice(-shiftAmount).concat(arr.slice(0, len - shiftAmount));
 }
 
 /**
@@ -610,13 +616,13 @@ function sortDigitNamesByNumericOrder(arr) {
  *
  */
 function swapHeadAndTail(arr) {
-  const len = arr.length;
-  if (len <= 1) return arr;
-  const middleIndex = Math.floor(len / 2);
-  const middleElement = len % 2 === 0 ? [] : [arr[middleIndex]];
+  const n = arr.length;
+  if (n <= 1) return arr;
+  const middleIndex = Math.floor(n / 2);
   const head = arr.slice(0, middleIndex);
-  const tail = arr.slice(len % 2 === 0 ? middleIndex : middleIndex + 1);
-  return [...tail, ...middleElement, ...head];
+  const tail = arr.slice(middleIndex + (n % 2));
+  const middle = n % 2 === 0 ? [] : [arr[middleIndex]];
+  return tail.concat(middle, head);
 }
 
 module.exports = {
